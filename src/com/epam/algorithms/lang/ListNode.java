@@ -17,9 +17,21 @@ public class ListNode {
     }
 
     public String asString() {
+        return asString(this);
+    }
+
+    public String toString() {
+        return Integer.toString(val);
+    }
+
+    public static String asString(ListNode head) {
+        if (head == null) {
+            return null;
+        }
+
         StringBuilder result = new StringBuilder();
         int counter = 0;
-        ListNode l = this;
+        ListNode l = head;
         while (l != null && counter < 100) {
             if (l.next == null) {
                 result.append(l.val);
@@ -30,9 +42,5 @@ public class ListNode {
             counter ++;
         }
         return result.toString();
-    }
-
-    public String toString() {
-        return Integer.toString(val);
     }
 }

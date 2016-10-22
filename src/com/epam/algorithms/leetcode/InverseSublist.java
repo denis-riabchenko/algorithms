@@ -19,7 +19,6 @@ public class InverseSublist {
             }
 
 
-            ListNode p1 = p;
             ListNode p2 = p.next;
             p = p.next;
             while (p != null && r > 0) {

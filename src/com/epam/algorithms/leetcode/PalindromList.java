@@ -1,23 +1,38 @@
 package com.epam.algorithms.leetcode;
 
+import com.epam.algorithms.crackinginterviews.MultiplyStrings;
 import com.epam.algorithms.lang.ListNode;
+import org.junit.Test;
 
 /**
  * Created by driabchenko on 7/28/15.
  */
 public class PalindromList {
-    public static void main(String[] args) {
-        (new PalindromList()).execute();
-    }
+    @Test
+    public void test() {
+        Integer v = 5;
+        System.out.println(v);
+        v = -v;
+        System.out.println(v);
+        v = -v;
+        synchronized ("abcd") {
+            System.out.println(v);
+        }
 
-    public void execute() {
-        ListNode list = ListNode.fromArray(new int[]{5, 1, 4, 3, 4, 2, 5});
-        System.out.println(list.asString());
-        PalindromList pl = new PalindromList();
-        System.out.println(pl.isPalindrome(list));
+        synchronized (MultiplyStrings.class) {
+            System.out.println(v);
+        }
+
+//        ListNode list = ListNode.fromArray(new int[]{5, 2, 4, 3, 4, 2, 5});
+//        System.out.println(list.asString());
+//        PalindromList pl = new PalindromList();
+//        System.out.println(pl.isPalindrome(list));
     }
 
     public boolean isPalindrome(ListNode head) {
+        synchronized ("abcd") {
+
+        }
         if (head == null || head.next == null) {
             return true;
         }
