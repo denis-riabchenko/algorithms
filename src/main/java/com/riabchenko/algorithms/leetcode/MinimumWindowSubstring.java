@@ -17,53 +17,57 @@ public class MinimumWindowSubstring {
     }
 
     public String minWindow(String s, String t) {
-        Map<Character, Integer> map = new HashMap<>();
+        Map<Character, Integer> targetMap = new HashMap<>();
         for (int i = 0; i < t.length(); i++) {
-            map.put(t.charAt(i), 0);
-        }
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            Integer count = map.get(c);
-            if (count != null) {
-                map.put(c, count + 1);
-            }
+            char c = t.charAt(i);
+            targetMap.put(c, targetMap.getOrDefault(c, 0) + 1);
         }
 
-        int min = s.length();
-        int l = 0;
-        int r = s.length() - 1;
-        while (l < r) {
-            int lc = getCount(map, s.charAt(l));
-            int rc = getCount(map, s.charAt(r));
-            if (lc > 1 && lc >= rc) {
-                l++;
-                skip(map, s.charAt(l));
+        int start = 0;
+        int end = 0;
+        int[] min = null;
+        int count = 0;
+        Map<Character, Integer> windowMap = new HashMap<>();
+        while (start < s.length() && end <= s.length()) {
+            while (!targetMap.containsKey(s.charAt(start))) {
+                start++;
             }
-            if (rc > 1 && rc >= lc) {
-                r--;
-                skip(map, s.charAt(r));
+            if (end < start) {
+                end = start;
             }
-            if (min == r - l + 1) {
-                return s.substring(l, r + 1);
+            while (end <= s.length() && count < t.length()) {
+                char ce = s.charAt(end - 1);
+                if (targetMap.containsKey(ce)) {
+                    windowMap.put(ce, windowMap.getOrDefault(ce, 0) + 1);
+                    count++;
+                }
+                end++;
             }
-            min = r - l + 1;
+            if (count == t.length()) {
+                if (min == null) {
+                    min = new int[] {start, end};
+                } else if (min[1] - min[0] > end - start){
+                    min[0] = start;
+                    min[1] = end;
+                }
+
+                while (start < s.length() && count == t.length()) {
+                    char cs = s.charAt(start);
+                    Integer sc = windowMap.get(cs);
+                    if (sc != null && sc > 0) {
+                        windowMap.put(cs, sc - 1);
+                        count--;
+                    }
+                    start++;
+                }
+                if (end <= start) {
+                    end = start + 1;
+                }
+            }
+        }
+        if (min != null) {
+            return s.substring(min[0], min[1]);
         }
         return "";
     }
-
-    private int getCount(Map<Character, Integer> map, char c) {
-        Integer count = map.get(c);
-        if (count == null) {
-            return Integer.MAX_VALUE;
-        }
-        return count;
-    }
-
-    private void skip(Map<Character, Integer> map, char c) {
-        Integer count = map.get(c);
-        if (count != null) {
-            map.put(c, count - 1);
-        }
-    }
-
 }
