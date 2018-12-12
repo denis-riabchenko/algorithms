@@ -1,5 +1,7 @@
 package com.riabchenko.algorithms;
 
+import com.riabchenko.algorithms.hackerrank.HeapMap;
+
 import java.util.*;
 
 /**
@@ -36,12 +38,63 @@ public class CurrencyExchange {
     if (!currencies.contains(c1) || !currencies.contains(c2) || rates.isEmpty()) {
       return 0.0;
     }
-//    Double weight = findPathBF(c1, c2);
-    Double weight = findPathFW(c1, c2);
+    Double weight = findPathBF(c1, c2);
+//    Double weight = findPathFW(c1, c2);
+//    Double weight = findPathD(c1, c2);
     if (weight == null) {
       return 0.0;
     }
     return Math.pow(Math.E, -weight);
+  }
+
+  // Dijkstra's algorithm
+  private Double findPathD(String from, String to) {
+    HeapMap<String, Double> heapMap = new HeapMap<>();
+
+    Map<String, Set<Edge>> edges = new HashMap<>(currencies.size());
+    for (Edge rate : rates) {
+      edges.computeIfAbsent(rate.from, f -> new HashSet<>()).add(rate);
+      heapMap.put(rate.from, Double.MAX_VALUE);
+      heapMap.put(rate.to, Double.MAX_VALUE);
+    }
+
+    Map<String, String> parent = new HashMap<>();
+    Map<String, Double> distance = new HashMap<>();
+    distance.put(from, 0.0);
+
+    while (!heapMap.isEmpty()) {
+      String u = heapMap.firstKey();
+      Double uw = heapMap.removeFirst();
+      distance.put(u, uw);
+      Set<Edge> neighbors = edges.getOrDefault(u, Collections.emptySet());
+      for (Edge e : neighbors) {
+        Double vw = heapMap.get(e.to);
+        if (vw != null && vw > uw + e.weight) {
+          heapMap.put(e.to, uw + e.weight);
+          distance.put(e.to, uw + e.weight);
+          parent.put(e.to, u);
+        }
+      }
+    }
+
+    return distance.get(to);
+  }
+
+
+  private static class Table<R, C, V> {
+    private Map<R, Map<C, V>> rows = new HashMap<>();
+
+    public V get(R r, C c) {
+      Map<C, V> row = rows.get(r);
+      if (row == null) {
+        return null;
+      }
+      return row.get(c);
+    }
+
+    public V put(R r, C c, V v) {
+      return rows.computeIfAbsent(r, rk -> new HashMap<>()).put(c, v);
+    }
   }
 
   // Bellman-Ford algorithm
@@ -80,23 +133,6 @@ public class CurrencyExchange {
     return weight;
   }
 
-
-  private static class Table<R, C, V> {
-    private Map<R, Map<C, V>> rows = new HashMap<>();
-
-    public V get(R r, C c) {
-      Map<C, V> row = rows.get(r);
-      if (row == null) {
-        return null;
-      }
-      return row.get(c);
-    }
-
-    public V put(R r, C c, V v) {
-      return rows.computeIfAbsent(r, rk -> new HashMap<>()).put(c, v);
-    }
-  }
-
   // Floyd-Warshall algorithm
   private Double findPathFW(String from, String to) {
     Table<String, String, Double> weights = new Table<>();
@@ -119,6 +155,13 @@ public class CurrencyExchange {
             predecessors.put(i, j, predecessors.get(k, j));
           }
         }
+      }
+    }
+
+    for (String i : currencies) {
+      Double ii = weights.get(i, i);
+      if (ii != null && ii < 0) {
+        throw new IllegalStateException("Negative loop");
       }
     }
 
